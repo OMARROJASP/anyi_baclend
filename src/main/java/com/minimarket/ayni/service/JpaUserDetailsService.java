@@ -6,34 +6,31 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Service
 public class JpaUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        if (!username.equals("admin")){
-            // si no es igual negamos
-            throw new UsernameNotFoundException
-                    (String.format
-                            ("Username %s no existe en el sistema!!!",
-                                    username));
+        if (!username.equals("admin")) {
+            throw new UsernameNotFoundException(String.format("Username %s no existe en el sistema!", username));
         }
+
         //Si es igual lo authenticamos
         List<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
-
-
         // debemos retornar el user security, userdetails
         // el primer true habilitado, no expira, credenciales, que no esta bloqueado, roles
-        return new User(
-                username,
-                "12345",
+        return new User(username,
+                "$2a$10$DOMDxjYyfZ/e7RcBfUpzqeaCs8pLgcizuiQWXPkU35nOhZlFcE9MS",
                 true,
                 true,
                 true,
                 true,
                 authorities);
+
     }
 }

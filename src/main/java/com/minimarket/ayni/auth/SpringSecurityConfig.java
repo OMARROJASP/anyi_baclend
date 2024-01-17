@@ -5,9 +5,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -17,14 +21,23 @@ public class SpringSecurityConfig {
     private AuthenticationConfiguration authenticationConfiguration;
 
     @Bean
-    SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
+    PasswordEncoder passwordEncoder(){
+        // esto lo usamos cuando el password esta sin encriptar
+        //esto es util para pruebas nada mas porque es inseguro
+      //  return NoOpPasswordEncoder.getInstance();
+
+        return new BCryptPasswordEncoder();
+    }
+
+
+    @Bean
+    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http.authorizeHttpRequests()
-                .requestMatchers(HttpMethod.GET,"/categorias")
-                .permitAll()
+                .requestMatchers(HttpMethod.GET, "/users").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .addFilter(new JwtAuthenticationFilter(authenticationConfiguration.getAuthenticationManager()))
-                .csrf(config-> config.disable())
+                .csrf(config -> config.disable())
                 .sessionManagement(managment -> managment.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();
 
